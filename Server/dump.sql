@@ -42,28 +42,26 @@ INSERT INTO `congestion_pricing` VALUES (70,30,20,40),(75,35,35,50),(75,80,47,33
 UNLOCK TABLES;
 
 --
--- Table structure for table `current_congestion`
+-- Table structure for table `current_non_priority_congestion`
 --
 
-DROP TABLE IF EXISTS `current_congestion`;
+DROP TABLE IF EXISTS `current_non_priority_congestion`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `current_congestion` (
-  `priority` int(11) NOT NULL,
-  `non_priority_congestion` int(11) DEFAULT NULL,
-  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`priority`)
+CREATE TABLE `current_non_priority_congestion` (
+  `congestion` double NOT NULL,
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `current_congestion`
+-- Dumping data for table `current_non_priority_congestion`
 --
 
-LOCK TABLES `current_congestion` WRITE;
-/*!40000 ALTER TABLE `current_congestion` DISABLE KEYS */;
-INSERT INTO `current_congestion` VALUES (20,80,'2016-10-08 22:11:32'),(73,32,'2016-10-08 22:11:32'),(75,80,'2016-10-08 23:14:55'),(77,80,'2016-10-08 23:11:03');
-/*!40000 ALTER TABLE `current_congestion` ENABLE KEYS */;
+LOCK TABLES `current_non_priority_congestion` WRITE;
+/*!40000 ALTER TABLE `current_non_priority_congestion` DISABLE KEYS */;
+INSERT INTO `current_non_priority_congestion` VALUES (33,'2016-10-09 01:27:35'),(15.7,'2016-10-09 01:29:59');
+/*!40000 ALTER TABLE `current_non_priority_congestion` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -81,6 +79,29 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `current_priority_congestion`
+--
+
+DROP TABLE IF EXISTS `current_priority_congestion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `current_priority_congestion` (
+  `congestion` double NOT NULL,
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `current_priority_congestion`
+--
+
+LOCK TABLES `current_priority_congestion` WRITE;
+/*!40000 ALTER TABLE `current_priority_congestion` DISABLE KEYS */;
+INSERT INTO `current_priority_congestion` VALUES (5,'2016-10-09 00:59:35'),(15,'2016-10-09 01:11:05'),(20,'2016-10-08 22:11:32'),(73,'2016-10-08 22:11:32'),(75,'2016-10-08 23:14:55'),(77,'2016-10-08 23:11:03'),(11.11,'2016-10-09 01:30:27');
+/*!40000 ALTER TABLE `current_priority_congestion` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `journey`
 --
 
@@ -88,8 +109,7 @@ DROP TABLE IF EXISTS `journey`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `journey` (
-  `distance_travelled` double NOT NULL,
-  PRIMARY KEY (`distance_travelled`)
+  `distance_travelled` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -99,6 +119,7 @@ CREATE TABLE `journey` (
 
 LOCK TABLES `journey` WRITE;
 /*!40000 ALTER TABLE `journey` DISABLE KEYS */;
+INSERT INTO `journey` VALUES (15),(16),(0),(0),(15),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(10),(10),(10),(10),(10),(10),(10),(10),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(1),(1),(1),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(1),(1),(1),(10),(0),(0),(1),(5),(5),(5),(5),(5),(0.1);
 /*!40000 ALTER TABLE `journey` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -111,16 +132,15 @@ UNLOCK TABLES;
 /*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `PLS`.`journey_AFTER_INSERT` AFTER INSERT ON `journey` FOR EACH ROW
+
 BEGIN
-
-
-Update user set current_journey_distance = NEW.distance_travelled;
-IF NEW.distance_travelled=0 THEN 
-SET @journey_cost = (SELECT static_cost FROM congestion_pricing) * (5/60);
-ELSE 
-SET @journey_cost = (SELECT dynamic_cost FROM congestion_pricing) * NEW.distance_travelled;
+IF NEW.distance_travelled = 0 THEN
+	SELECT static_price *(5/60) INTO @journey_cost FROM current_price;
+ELSE
+	SELECT dynamic_price * NEW.distance_travelled INTO @journey_cost FROM current_price;
 END IF;
-Update user set current_journey_cost=current_journey_cost + @journey_cost;
+UPDATE user SET current_journey_distance = current_journey_distance + NEW.distance_travelled;
+UPDATE user SET current_journey_cost=current_journey_cost + @journey_cost;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -152,7 +172,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1234,NULL,34835,30,5,5);
+INSERT INTO `user` VALUES (1234,NULL,34835,30,1801.8333329000004,143.1);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,7 +190,7 @@ UNLOCK TABLES;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `pls`.`current_price` AS select `pls`.`congestion_pricing`.`dynamic_price` AS `dynamic_price`,`pls`.`congestion_pricing`.`static_price` AS `static_price` from (`pls`.`congestion_pricing` join `pls`.`current_congestion` on((((round(((`pls`.`current_congestion`.`priority` / 5) + 0.5),0) * 5) = `pls`.`congestion_pricing`.`priority`) and ((round(((`pls`.`current_congestion`.`non_priority_congestion` / 5) + 0.5),0) * 5) = `pls`.`congestion_pricing`.`non_priority`)))) limit 1 */;
+/*!50001 VIEW `pls`.`current_price` AS select `pls`.`congestion_pricing`.`dynamic_price` AS `dynamic_price`,`pls`.`congestion_pricing`.`static_price` AS `static_price` from ((`pls`.`congestion_pricing` join `pls`.`current_priority_congestion` on(((round(((`pls`.`current_priority_congestion`.`congestion` / 5) + 0.5),0) * 5) = `pls`.`congestion_pricing`.`priority`))) join `pls`.`current_non_priority_congestion` on(((round(((`pls`.`current_non_priority_congestion`.`congestion` / 5) + 0.5),0) * 5) = `pls`.`congestion_pricing`.`non_priority`))) limit 1 */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -184,4 +204,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-10-08 23:24:23
+-- Dump completed on 2016-10-09  1:34:31
