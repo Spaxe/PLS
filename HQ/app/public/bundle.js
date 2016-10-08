@@ -35,6 +35,9 @@ var mode = 'non-priority';
 // Draw eastern freeway inbound / outbound
 var draw_freeway = function draw_freeway() {
 
+  // Remove it from map for a moment
+  freeway_layer.clearLayers();
+
   // Invert lat lng for leaflet
   var inbound_coords = eastern_freeway.inbound.map(function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2);
@@ -104,11 +107,16 @@ var draw_freeway = function draw_freeway() {
     map.openPopup(outbound_popup);
   });
 };
+window.setInterval(function () {
+  draw_freeway();
+}, 60000);
 draw_freeway();
 
 var draw_real_time = function draw_real_time() {
   // Load all eastern freeway related segments from VicRoads real time API
   jshr.get("http://api.vicroads.vic.gov.au/vicroads/wfs?SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAMES=vicroads%3Abluetooth_links&OUTPUTFORMAT=json&SRSNAME=EPSG%3A4326&CQL_FILTER=name+like+'%25Eastern+Fwy%25'&AUTH=eyJraWQiOiJRRFFQWDZVSDlQRExOOU9GQVowMlNFRFVYIiwic3R0IjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiIzVGJlcmZuNmI0MnBzNTFVdkN3a3VOIiwiaWF0IjoxNDc1NTU1NTAwLCJpc3MiOiJodHRwczovL2FwaS5zdG9ybXBhdGguY29tL3YxL2FwcGxpY2F0aW9ucy80QXk3eUYybVFDaUJacVB6OUN5UVU4Iiwic3ViIjoiaHR0cHM6Ly9hcGkuc3Rvcm1wYXRoLmNvbS92MS9hY2NvdW50cy8zU01zbEJ0VVZGTFROc2wyVGY1N3ZVIiwiZXhwIjoxNDkxNDUzMTAwfQ.-LHSNHNyyg-n2wsKEkMGTpi9gXem4uKvw0cJGfOoTm4").then(function (data) {
+
+    road_layer.clearLayers();
 
     var features = data.response.features;
     features.forEach(function (feature) {
@@ -158,8 +166,13 @@ var draw_real_time = function draw_real_time() {
         map.openPopup(popup);
       });
     });
+  }).catch(function (error) {
+    console.error(error);
   });
 };
+window.setInterval(function () {
+  draw_real_time();
+}, 60000);
 draw_real_time();
 road_layer.addTo(map);
 
