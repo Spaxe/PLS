@@ -16,15 +16,15 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `User`
+-- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `User`;
+DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `User` (
+CREATE TABLE `user` (
   `registration_number` int(11) NOT NULL,
-  `in_priority_plane` blob,
+  `in_priority_lane` blob,
   `mastercard_token` double DEFAULT NULL,
   `account_balance` double DEFAULT NULL,
   `current_journey_cost` double DEFAULT NULL,
@@ -34,13 +34,13 @@ CREATE TABLE `User` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `User`
+-- Dumping data for table `user`
 --
 
-LOCK TABLES `User` WRITE;
+LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1234,NULL,34835,30,5,5);
-/*!40000 ALTER TABLE `User` ENABLE KEYS */;
+INSERT INTO `user` VALUES (1234,NULL,34835,30,5,5);
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -134,4 +134,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-10-08 20:24:01
+-- Dump completed on 2016-10-08 21:05:20
