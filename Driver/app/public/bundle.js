@@ -87,7 +87,7 @@ var get_current_journey = function get_current_journey(err, distance) {
     try {
       journey_cost = Number(JSON.parse(data).json[0].current_journey_cost);
       var price = journey_cost.toFixed(2);
-      if (isNaN(price)) {
+      if (isNaN(price) || !price) {
         total_price.textContent = '$0.00';
       } else {
         total_price.textContent = '$' + price;
