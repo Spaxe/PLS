@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const L = require('leaflet');
+const xhr = require('xhr');
 const jshr = require('json-xhr');
 const eastern_freeway = require('./eastern-freeway');
 
@@ -84,9 +85,7 @@ let draw_freeway = () => {
     map.openPopup(outbound_popup);
   });
 };
-window.setInterval(() => {
-  draw_freeway();
-}, 60000);
+window.setInterval(draw_freeway, 60000);
 draw_freeway();
 
 let draw_real_time = () => {
@@ -138,6 +137,11 @@ let draw_real_time = () => {
         popup.setLatLng(event.latlng);
         map.openPopup(popup);
       });
+
+      // Update non-priority congestion delays to server
+      if (name === 'Eastern Fwy, Blackburn Rd to Wellington St') {
+        update_non_priority_delay(delay);
+      }
     });
   }).catch( error => {
     console.error(error);
@@ -149,6 +153,23 @@ window.setInterval(() => {
 }, 60000);
 draw_real_time();
 road_layer.addTo(map);
+
+
+let update_non_priority_delay = (delay) => {
+  xhr.post({
+    url: 'http://10.18.0.132:2999/api/current_non_priority_congestion',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `congestion=${Math.max(delay, 0)}`
+  }, (error, resp, data) => {
+    if (error) {
+      console.error(error);
+    } else if (JSON.parse(data).result !== 'success') {
+      console.error('Failed to update delay: ', delay, error, data);
+    }
+  });
+};
 
 
 // Query dynamic pricing
