@@ -37,7 +37,6 @@ CREATE TABLE `congestion_pricing` (
 
 LOCK TABLES `congestion_pricing` WRITE;
 /*!40000 ALTER TABLE `congestion_pricing` DISABLE KEYS */;
-INSERT INTO `congestion_pricing` VALUES (70,30,20,40),(75,35,35,50),(75,80,47,33),(80,20,30,45),(80,80,55,44);
 /*!40000 ALTER TABLE `congestion_pricing` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,7 +59,6 @@ CREATE TABLE `current_non_priority_congestion` (
 
 LOCK TABLES `current_non_priority_congestion` WRITE;
 /*!40000 ALTER TABLE `current_non_priority_congestion` DISABLE KEYS */;
-INSERT INTO `current_non_priority_congestion` VALUES (33,'2016-10-09 01:27:35'),(15.7,'2016-10-09 01:29:59');
 /*!40000 ALTER TABLE `current_non_priority_congestion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -97,7 +95,6 @@ CREATE TABLE `current_priority_congestion` (
 
 LOCK TABLES `current_priority_congestion` WRITE;
 /*!40000 ALTER TABLE `current_priority_congestion` DISABLE KEYS */;
-INSERT INTO `current_priority_congestion` VALUES (5,'2016-10-09 00:59:35'),(15,'2016-10-09 01:11:05'),(20,'2016-10-08 22:11:32'),(73,'2016-10-08 22:11:32'),(75,'2016-10-08 23:14:55'),(77,'2016-10-08 23:11:03'),(11.11,'2016-10-09 01:30:27');
 /*!40000 ALTER TABLE `current_priority_congestion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -119,7 +116,6 @@ CREATE TABLE `journey` (
 
 LOCK TABLES `journey` WRITE;
 /*!40000 ALTER TABLE `journey` DISABLE KEYS */;
-INSERT INTO `journey` VALUES (15),(16),(0),(0),(15),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(10),(10),(10),(10),(10),(10),(10),(10),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(1),(1),(1),(0),(0),(0),(0),(0),(0),(0),(0),(0),(0),(1),(1),(1),(10),(0),(0),(1),(5),(5),(5),(5),(5),(0.1);
 /*!40000 ALTER TABLE `journey` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -172,7 +168,6 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1234,NULL,34835,30,1801.8333329000004,143.1);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,4 +199,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-10-09  1:34:31
+-- Dump completed on 2016-10-09  9:48:44
