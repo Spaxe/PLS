@@ -34,7 +34,7 @@ def getUrl(request):
 
 
 ## VARIABLES ######
-WaitInterval = 10 #Number of seconds between trying to post result
+WaitInterval = 60 #Number of seconds between trying to post result
 
 mode = '2'  # 2 = bus
 
@@ -143,7 +143,7 @@ while (1):
 
     #print ('postedddddd')
 
-    ###Only post every 10 seconds####
+    ###Wait for long####
     sleep(WaitInterval)
 
 
