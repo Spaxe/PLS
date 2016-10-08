@@ -50,6 +50,8 @@ DirB = '39'   #inbound to city
 #Only look for 'real data.. no need to look at forecast beyond next. If 0, will not respond.
 Limit = '3'    
 
+#Where to post to 
+postURL = 'http://10.18.0.132:2999/api/current_priority_congestion='
 
 
 ###Start infinite loop here
@@ -123,11 +125,24 @@ while (1):
 
 
     ########## EXport Stage... needs wiritng########
-    print ('Od =')
-    print (Outbound_delay)
-    print ('Id =')
-    print (Inbound_delay)
+    #print ('Od =')
+    #print (Outbound_delay)
+    #print ('Id =')
+    #print (Inbound_delay)
 
+    OutputData = postURL+format(Inbound_delay)
+
+    print (OutputData)
+    
+    c = pycurl.Curl()
+    storage =  BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, OutputData)
+    c.setopt(c.WRITEFUNCTION, storage.write)
+    c.perform()
+    c.close()
+
+    print ('postedddddd')
 
     ###Only post every 10 seconds####
     sleep(WaitInterval)
