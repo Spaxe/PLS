@@ -14,9 +14,8 @@ body {
 #border {
   position: relative;
   background: white;
-  margin: 20px;
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
+  width: 650px;
+  height: 350px;
   box-sizing: border-box;
   border-radius: 50px;
   border: 2px solid #96c42a;
