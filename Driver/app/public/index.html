@@ -2,13 +2,27 @@
 <html>
 <head>
   <title>Priority Lane System Driver Tag</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 </head>
 <body>
   <div id="container">
-  $0.00
+    <div id="border">
+      <img id="logo" src="images/logo.png">
 
+      <div id="status-light"></div>
+
+      <div class="center">
+        <div class="screen center">
+        <div id="total-price">$0.00</div>
+        <div id="pricing">
+          Current: <span id="dynamic-pricing">$--/km</span>
+        </div>
+        <div id="static-wrapper">Static: <span id="static-pricing">$50.00/min</span></div>
+      </div>
+
+    </div>
   </div>
 
   <script src="bundle.js"></script>
