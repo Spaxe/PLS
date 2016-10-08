@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Priority Lane System - My Account</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+</head>
+<body>
+
+  <div id="container">
+    <div id="banner">
+      <img id="logo" src="images/logo.png">
+      <span>Priority Lane System</span>
+    </div>
+
+    <div id="hero">
+    </div>
+
+    <div id="payment">
+      <h1>Top up my account</h1>
+
+      <p>Account balance: <span id="account-balance">$35.00</span></p>
+
+      <p>Use this card: 5123 45xx xxxx 2346</p>
+      <p>Top up amount:
+        <select id="amount">
+          <option value="10">$10.00</option>
+          <option value="20">$20.00</option>
+          <option value="50" selected>$50.00</option>
+          <option value="100">$100.00</option>
+        </select>
+      </p>
+      <input id="pay" type="button" value="Pay Now">
+
+      <div id="receipt"></div>
+    </div>
+  </div>
+
+  <script src="bundle.js"></script>
+</body>
+</html>

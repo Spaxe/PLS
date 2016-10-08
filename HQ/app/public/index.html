@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Priority Lane System HQ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+</head>
+<body>
+
+  <div id="container">
+    <div id="banner">
+      <img id="logo" src="images/logo.png">
+      <span>Priority Lane System HQ</span>
+      <div class="price-container">
+        <span class="price">Outbound: <span id="outbound-price">--/km</span></span>
+        <span class="price">Inbound: <span id="inbound-price">--/km</span></span>
+      </div>
+    </div>
+
+    <div id="map"></div>
+
+    <div id="control">
+      <span id="control-title">Display</span>
+      <span id="non-priority" class="title selected">Non-Priority Lane</span>
+      <span id="priority" class="title">Priority Lane</span>
+    </div>
+
+  </div>
+
+  <script src="bundle.js"></script>
+</body>
+</html>
