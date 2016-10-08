@@ -138,6 +138,27 @@ let draw_real_time = () => {
 draw_real_time();
 road_layer.addTo(map);
 
+// Query dynamic pricing
+var outbound_price = document.getElementById('outbound-price');
+var inbound_price = document.getElementById('inbound-price');
+
+jshr.get('http://10.18.0.132:2999/api/current_price').then( data => {
+
+  let price = Number(data.response.json[0].dynamic_price).toFixed(2);
+  if (isNaN(price)) {
+    outbound_price.textContent = '$14.99/km';
+    inbound_price.textContent = '$14.99/km';
+  } else {
+    outbound_price.textContent = `$${price}/km`;
+    inbound_price.textContent = `$${price}/km`;
+  }
+
+}).catch( error => {
+  console.error(error);
+  inbound_price.textContent = '$14.99/km';
+  outbound_price.textContent = '$14.99/km';
+});
+
 // Interaction
 var priority_mode = document.getElementById('priority');
 var non_priority_mode = document.getElementById('non-priority');
