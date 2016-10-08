@@ -13,34 +13,37 @@ var journey_cost = 0;
 var update_current_price = function update_current_price() {
   xhr.get({
     url: 'http://10.18.0.132:2999/api/current_price',
-    timeout: 1900
+    timeout: 4900
   }, function (error, resp, data) {
 
     if (error) {
-      console.error(error);
-      dynamic_pricing.textContent = '$14.99/km';
+      console.error(error, data);
+      dynamic_pricing.textContent = '$1.49/km';
       return;
     }
 
-    var price = Number(data.response.json[0].dynamic_price).toFixed(2);
-    if (isNaN(price)) {
-      dynamic_pricing.textContent = '$14.99/km';
-    } else {
-      dynamic_pricing.textContent = '$' + price + '/km';
+    try {
+      var price = Number(JSON.parse(data).json[0].dynamic_price).toFixed(2);
+      if (isNaN(price)) {
+        dynamic_pricing.textContent = '$1.49/km';
+      } else {
+        dynamic_pricing.textContent = '$' + price + '/km';
+      }
+    } catch (e) {
+      dynamic_pricing.textContent = '$1.49/km';
     }
   });
 };
-window.setInterval(update_current_price, 2000);
+window.setInterval(update_current_price, 5000);
 
 // Update delta distance by driver tag
 var send_distance = function send_distance(distance) {
 
-  xhr({
+  xhr.post({
     url: 'http://10.18.0.132:2999/api/journey',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
-    method: 'POST',
     timeout: 1900,
     body: 'distance_travelled=' + distance
   }, function (error, resp, body) {
@@ -49,9 +52,8 @@ var send_distance = function send_distance(distance) {
     } else if (body.result !== 'success') {
       console.warn(body);
     }
+    get_current_journey(error, distance);
   });
-
-  get_current_journey(distance);
 };
 window.setInterval(function () {
   var r = Math.random();
@@ -63,16 +65,16 @@ window.setInterval(function () {
 }, 2000);
 
 // Update total journey cost
-var get_current_journey = function get_current_journey(distance) {
+var get_current_journey = function get_current_journey(err, distance) {
 
   xhr.get({
     url: 'http://10.18.0.132:2999/api/user',
     timeout: 1900
   }, function (error, resp, data) {
 
-    if (error) {
+    if (error || err) {
       console.log(error);
-      var fake_unit = 14.99;
+      var fake_unit = 1.49;
       var cost = fake_unit * distance;
       journey_cost += cost;
       var _price = journey_cost.toFixed(2);
@@ -81,11 +83,16 @@ var get_current_journey = function get_current_journey(distance) {
     }
 
     // XXX FIX ME
-    journey_cost = Number(data.response.json[0].total_cost);
-    var price = journey_cost.toFixed(2);
-    if (isNaN(price)) {
-      total_price.textContent = '$0.00';
-    } else {
+
+    try {
+      journey_cost = Number(JSON.parse(data).json[0].current_journey_cost);
+      var price = journey_cost.toFixed(2);
+      if (isNaN(price)) {
+        total_price.textContent = '$0.00';
+      } else {
+        total_price.textContent = '$' + price;
+      }
+    } catch (e) {
       total_price.textContent = '$' + price;
     }
   });
