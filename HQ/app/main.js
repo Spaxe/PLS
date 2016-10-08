@@ -16,6 +16,7 @@ jshr.get("http://api.vicroads.vic.gov.au/vicroads/wfs?SERVICE=WFS&VERSION=1.1.0&
   let features = data.response.features;
   features.forEach(feature => {
     let coords = feature.geometry.coordinates;
+    let name = feature.properties.name;
     let delay = feature.properties.excess_delay;
 
     // Flip coords long lat to lat long for Leaflet
@@ -37,13 +38,13 @@ jshr.get("http://api.vicroads.vic.gov.au/vicroads/wfs?SERVICE=WFS&VERSION=1.1.0&
     // Copy properties and calculate the congestion details and delays, if any
     polyline.properties = feature.properties;
 
-    let text;
+    let text = `<p>${name}</p>`;
     if (delay > 0) {
-      text = `<p>Delayed by ${delay} minutes</p>`;
+      text += `<p>Delayed by ${delay} minutes</p>`;
     } else if (delay == 0) {
-      text = `<p>No delay</p>`;
+      text += `<p>No delay</p>`;
     } else {
-      text = `<p>${-delay} minutes early</p>`;
+      text += `<p>${-delay} minutes early</p>`;
     }
 
     // Add tooltip for traffic details
