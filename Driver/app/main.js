@@ -76,12 +76,10 @@ let get_current_journey = (err, distance) => {
       let fake_unit = 1.49;
       let cost = fake_unit * distance;
       journey_cost += cost;
-      let price = journey_cost.toFixed(2);
-      total_price.textContent = `$${price}`;
+      let price_display = journey_cost.toFixed(2);
+      total_price.textContent = `$${price_display}`;
       return;
     }
-
-    // XXX FIX ME
 
     try {
       journey_cost = Number(JSON.parse(data).json[0].current_journey_cost);
