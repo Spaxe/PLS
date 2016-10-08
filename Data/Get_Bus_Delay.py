@@ -9,17 +9,19 @@
 ##Apologies for bad code =] And magic numbers. 
 
 from io import  BytesIO
+from time import sleep
 import pycurl
 import hmac
 import binascii
 import json
 import datetime
+
 from hashlib import sha1
 
 
 
 
-##Hash Generation... no need to inlude base URL in code
+##Hash Generation...
 def getUrl(request):
     devId = 3000030
     key = 'cb032b4d-c772-4c7d-a024-a5c8c6a5fb70'
@@ -32,6 +34,8 @@ def getUrl(request):
 
 
 ## VARIABLES ######
+WaitInterval = 10 #Number of seconds between trying to post result
+
 mode = '2'  # 2 = bus
 
 #A = outbound
@@ -44,66 +48,103 @@ StopB = '18626' #Doncaster Park and ride
 DirB = '39'   #inbound to city
 
 #Only look for 'real data.. no need to look at forecast beyond next. If 0, will not respond.
-Limit = '1'    
+Limit = '3'    
+
+#Where to post to 
+postURL = 'http://10.18.0.132:2999/api/current_priority_congestion='
 
 
-#######################################################
-## Inbound Delay Estimation based on looking at 1 Bus##
-Q_TypeIn = '/v2/mode/'+mode+'/line/'+LineA+'/stop/'+StopA+'/directionid/'+DirA+'/departures/all/limit/'+Limit
+###Start infinite loop here
+while (1):
 
-##Creat URL
-tempurlIn = getUrl(Q_TypeIn)
+    #######################################################
+    ## Inbound Delay Estimation based on looking at 1 Bus##
+    Q_TypeIn = '/v2/mode/'+mode+'/line/'+LineA+'/stop/'+StopA+'/directionid/'+DirA+'/departures/all/limit/'+Limit
 
-####Run the URL##
-c = pycurl.Curl()
-storage =  BytesIO()
-c = pycurl.Curl()
-c.setopt(c.URL, tempurlIn)
-c.setopt(c.WRITEFUNCTION, storage.write)
-c.perform()
-c.close()
-content = storage.getvalue()
+    ##Creat URL
+    tempurlIn = getUrl(Q_TypeIn)
 
-##Store in jcontentIn##
-jcontentIn =json.loads(content)
+    ####Run the URL##
+    c = pycurl.Curl()
+    storage =  BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, tempurlIn)
+    c.setopt(c.WRITEFUNCTION, storage.write)
+    c.perform()
+    c.close()
+    content = storage.getvalue()
 
-##Process datetimes. If no "real_time" force delay to = 00:00:00.
-Str_Sched_timeIn = jcontentIn['values'][0]['time_timetable_utc']
-Str_Real_timeIn =  jcontentIn['values'][0]['time_realtime_utc']  
-if not Str_Real_timeIn: Str_Real_timeIn = Str_Sched_timeIn
-Sched_timeIn = datetime.datetime.strptime(Str_Sched_timeIn, "%Y-%m-%dT%H:%M:%SZ")
-Real_timeIn = datetime.datetime.strptime(Str_Real_timeIn, "%Y-%m-%dT%H:%M:%SZ")
+    ##Store in jcontentIn##
+    jcontentIn =json.loads(content)
 
-#Store in inbound delay
-Inbound_delay = Real_timeIn - Sched_timeIn
+    ##Process datetimes. If no "real_time" force delay to = 00:00:00.
+    Str_Sched_timeIn = jcontentIn['values'][0]['time_timetable_utc']
+    Str_Real_timeIn =  jcontentIn['values'][0]['time_realtime_utc']  
+    if not Str_Real_timeIn: Str_Real_timeIn = Str_Sched_timeIn
+    Sched_timeIn = datetime.datetime.strptime(Str_Sched_timeIn, "%Y-%m-%dT%H:%M:%SZ")
+    Real_timeIn = datetime.datetime.strptime(Str_Real_timeIn, "%Y-%m-%dT%H:%M:%SZ")
+
+    #Store in inbound delay
+
+    tempdiffIn = Real_timeIn - Sched_timeIn
+    Inbound_delay = tempdiffIn.seconds / 60
 
 
-########################################################
-## Outbound Delay Estimation based on looking at 1 Bus##
-Q_TypeOut = '/v2/mode/'+mode+'/line/'+LineB+'/stop/'+StopB+'/directionid/'+DirB+'/departures/all/limit/'+Limit
 
-##Creat URL
-tempurlOut = getUrl(Q_TypeOut)
+    ########################################################
+    ## Outbound Delay Estimation based on looking at 1 Bus##
+    Q_TypeOut = '/v2/mode/'+mode+'/line/'+LineB+'/stop/'+StopB+'/directionid/'+DirB+'/departures/all/limit/'+Limit
 
-####Run the URL##
-c = pycurl.Curl()
-storage =  BytesIO()
-c = pycurl.Curl()
-c.setopt(c.URL, tempurlOut)
-c.setopt(c.WRITEFUNCTION, storage.write)
-c.perform()
-c.close()
-contentOut = storage.getvalue()
+    ##Creat URL
+    tempurlOut = getUrl(Q_TypeOut)
 
-##Store in jcontentOut##
-jcontentOut =json.loads(contentOut)
+    ####Run the URL##
+    c = pycurl.Curl()
+    storage =  BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, tempurlOut)
+    c.setopt(c.WRITEFUNCTION, storage.write)
+    c.perform()
+    c.close()
+    contentOut = storage.getvalue()
 
-##Process datetimes. If no "real_time" force delay to = 00:00:00.
-Str_Sched_timeOut = jcontentOut['values'][0]['time_timetable_utc']
-Str_Real_timeOut =  jcontentOut['values'][0]['time_realtime_utc']  
-if not Str_Real_timeOut: Str_Real_timeOut = Str_Sched_timeOut
-Sched_timeOut = datetime.datetime.strptime(Str_Sched_timeOut, "%Y-%m-%dT%H:%M:%SZ")
-Real_timeOut = datetime.datetime.strptime(Str_Real_timeOut, "%Y-%m-%dT%H:%M:%SZ")
+    ##Store in jcontentOut##
+    jcontentOut =json.loads(contentOut)
 
-#Store in outbound_delay
-Outbound_delay = Real_timeOut - Sched_timeOut
+    ##Process datetimes. If no "real_time" force delay to = 00:00:00.
+    Str_Sched_timeOut = jcontentOut['values'][0]['time_timetable_utc']
+    Str_Real_timeOut =  jcontentOut['values'][0]['time_realtime_utc']  
+    if not Str_Real_timeOut: Str_Real_timeOut = Str_Sched_timeOut
+    Sched_timeOut = datetime.datetime.strptime(Str_Sched_timeOut, "%Y-%m-%dT%H:%M:%SZ")
+    Real_timeOut = datetime.datetime.strptime(Str_Real_timeOut, "%Y-%m-%dT%H:%M:%SZ")
+
+    #Store in outbound_delay
+    tempdiffOut = Real_timeOut - Sched_timeOut
+    Outbound_delay = tempdiffOut.seconds / 60
+
+
+
+    ########## EXport Stage... needs wiritng########
+    #print ('Od =')
+    #print (Outbound_delay)
+    #print ('Id =')
+    #print (Inbound_delay)
+
+    OutputData = postURL+format(Inbound_delay)
+
+    print (OutputData)
+    
+    c = pycurl.Curl()
+    storage =  BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, OutputData)
+    c.setopt(c.WRITEFUNCTION, storage.write)
+    c.perform()
+    c.close()
+
+    print ('postedddddd')
+
+    ###Only post every 10 seconds####
+    sleep(WaitInterval)
+
+
