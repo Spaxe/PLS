@@ -29,6 +29,9 @@ var speed_colors = ['#01b3fd', '#ff9e00', '#ff0000'];
 var road_layer = L.layerGroup();
 var freeway_layer = L.layerGroup();
 
+// Display mode
+var mode = 'non-priority';
+
 // Draw eastern freeway inbound / outbound
 var draw_freeway = function draw_freeway() {
 
@@ -59,6 +62,24 @@ var draw_freeway = function draw_freeway() {
   });
   freeway_layer.addLayer(inbound_polyline);
 
+  // XXX FIXME TEMPORARY, as we need data
+  var delay = 0;
+
+  var inbound_text = '<p class="road-name">Eastern Freeway Priority Lane (Inbound)</p>';
+  if (delay > 0) {
+    inbound_text += '<p>Congested</p>';
+  } else {
+    inbound_text += '<p>Low Utilisation</p>';
+  }
+
+  // Add tooltip for traffic details
+  var inbound_popup = L.popup().setContent(inbound_text);
+
+  inbound_polyline.addEventListener('mousemove', function (event) {
+    inbound_popup.setLatLng(event.latlng);
+    map.openPopup(inbound_popup);
+  });
+
   // Draw the eastern freeway line in colour
   var outbound_polyline = L.polyline(outbound_coords, {
     className: 'road-segment',
@@ -68,7 +89,20 @@ var draw_freeway = function draw_freeway() {
   });
   freeway_layer.addLayer(outbound_polyline);
 
-  freeway_layer.addTo(map);
+  var outbound_text = '<p class="road-name">Eastern Freeway Priority Lane (Outbound)</p>';
+  if (delay > 0) {
+    outbound_text += '<p>Congested</p>';
+  } else {
+    outbound_text += '<p>Low Utilisation</p>';
+  }
+
+  // Add tooltip for traffic details
+  var outbound_popup = L.popup().setContent(outbound_text);
+
+  outbound_polyline.addEventListener('mousemove', function (event) {
+    outbound_popup.setLatLng(event.latlng);
+    map.openPopup(outbound_popup);
+  });
 };
 draw_freeway();
 
@@ -124,9 +158,30 @@ var draw_real_time = function draw_real_time() {
         map.openPopup(popup);
       });
     });
-    road_layer.addTo(map);
   });
 };
+draw_real_time();
+road_layer.addTo(map);
+
+// Interaction
+var priority_mode = document.getElementById('priority');
+var non_priority_mode = document.getElementById('non-priority');
+
+priority_mode.addEventListener('click', function (event) {
+  map.removeLayer(road_layer);
+  map.addLayer(freeway_layer);
+  priority_mode.classList.add('selected');
+  non_priority_mode.classList.remove('selected');
+  map.closePopup();
+});
+
+non_priority_mode.addEventListener('click', function (event) {
+  map.addLayer(road_layer);
+  map.removeLayer(freeway_layer);
+  non_priority_mode.classList.add('selected');
+  priority_mode.classList.remove('selected');
+  map.closePopup();
+});
 
 },{"./eastern-freeway":1,"json-xhr":4,"leaflet":5,"lodash":6}],3:[function(require,module,exports){
 (function (process){

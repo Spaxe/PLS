@@ -15,6 +15,9 @@ var speed_colors = ['#01b3fd', '#ff9e00', '#ff0000'];
 var road_layer = L.layerGroup();
 var freeway_layer = L.layerGroup();
 
+// Display mode
+var mode = 'non-priority';
+
 // Draw eastern freeway inbound / outbound
 let draw_freeway = () => {
 
@@ -35,6 +38,25 @@ let draw_freeway = () => {
   });
   freeway_layer.addLayer(inbound_polyline);
 
+  // XXX FIXME TEMPORARY, as we need data
+  let delay = 0;
+
+  let inbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Inbound)</p>`;
+  if (delay > 0) {
+    inbound_text += `<p>Congested</p>`;
+  } else {
+    inbound_text += `<p>Low Utilisation</p>`;
+  }
+
+  // Add tooltip for traffic details
+  let inbound_popup = L.popup()
+    .setContent(inbound_text);
+
+  inbound_polyline.addEventListener('mousemove', event => {
+    inbound_popup.setLatLng(event.latlng);
+    map.openPopup(inbound_popup);
+  });
+
   // Draw the eastern freeway line in colour
   let outbound_polyline = L.polyline(outbound_coords, {
     className: 'road-segment',
@@ -44,7 +66,21 @@ let draw_freeway = () => {
   });
   freeway_layer.addLayer(outbound_polyline);
 
-  freeway_layer.addTo(map);
+  let outbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Outbound)</p>`;
+  if (delay > 0) {
+    outbound_text += `<p>Congested</p>`;
+  } else {
+    outbound_text += `<p>Low Utilisation</p>`;
+  }
+
+  // Add tooltip for traffic details
+  let outbound_popup = L.popup()
+    .setContent(outbound_text);
+
+  outbound_polyline.addEventListener('mousemove', event => {
+    outbound_popup.setLatLng(event.latlng);
+    map.openPopup(outbound_popup);
+  });
 };
 draw_freeway();
 
@@ -95,9 +131,29 @@ let draw_real_time = () => {
         popup.setLatLng(event.latlng);
         map.openPopup(popup);
       });
-
     });
-    road_layer.addTo(map);
   });
 
 };
+draw_real_time();
+road_layer.addTo(map);
+
+// Interaction
+var priority_mode = document.getElementById('priority');
+var non_priority_mode = document.getElementById('non-priority');
+
+priority_mode.addEventListener('click', event => {
+  map.removeLayer(road_layer);
+  map.addLayer(freeway_layer);
+  priority_mode.classList.add('selected');
+  non_priority_mode.classList.remove('selected');
+  map.closePopup();
+});
+
+non_priority_mode.addEventListener('click', event => {
+  map.addLayer(road_layer);
+  map.removeLayer(freeway_layer);
+  non_priority_mode.classList.add('selected');
+  priority_mode.classList.remove('selected');
+  map.closePopup();
+});
