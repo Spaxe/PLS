@@ -15,7 +15,7 @@ import hmac
 import binascii
 import json
 import datetime
-
+from random import randint
 from hashlib import sha1
 
 
@@ -80,15 +80,13 @@ while (1):
     ##Process datetimes. If no "real_time" force delay to = 00:00:00.
     Str_Sched_timeIn = jcontentIn['values'][0]['time_timetable_utc']
     Str_Real_timeIn =  jcontentIn['values'][0]['time_realtime_utc']  
-    if not Str_Real_timeIn: Str_Real_timeIn = Str_Sched_timeIn
-    Sched_timeIn = datetime.datetime.strptime(Str_Sched_timeIn, "%Y-%m-%dT%H:%M:%SZ")
-    Real_timeIn = datetime.datetime.strptime(Str_Real_timeIn, "%Y-%m-%dT%H:%M:%SZ")
-
-    #Store in inbound delay
-
-    tempdiffIn = Real_timeIn - Sched_timeIn
-    Inbound_delay = tempdiffIn.seconds / 60
-
+    if Str_Real_timeIn: 
+        Sched_timeIn = datetime.datetime.strptime(Str_Sched_timeIn, "%Y-%m-%dT%H:%M:%SZ")
+        Real_timeIn = datetime.datetime.strptime(Str_Real_timeIn, "%Y-%m-%dT%H:%M:%SZ")
+        tempdiffIn = Real_timeIn - Sched_timeIn
+        Inbound_delay = tempdiffIn.seconds / 60
+    else:
+        Inbound_delay = randint(2,11)
 
 
     ########################################################
@@ -114,14 +112,15 @@ while (1):
     ##Process datetimes. If no "real_time" force delay to = 00:00:00.
     Str_Sched_timeOut = jcontentOut['values'][0]['time_timetable_utc']
     Str_Real_timeOut =  jcontentOut['values'][0]['time_realtime_utc']  
-    if not Str_Real_timeOut: Str_Real_timeOut = Str_Sched_timeOut
-    Sched_timeOut = datetime.datetime.strptime(Str_Sched_timeOut, "%Y-%m-%dT%H:%M:%SZ")
-    Real_timeOut = datetime.datetime.strptime(Str_Real_timeOut, "%Y-%m-%dT%H:%M:%SZ")
+    if Str_Real_timeOut:
+        Sched_timeOut = datetime.datetime.strptime(Str_Sched_timeOut, "%Y-%m-%dT%H:%M:%SZ")
+        Real_timeOut = datetime.datetime.strptime(Str_Real_timeOut, "%Y-%m-%dT%H:%M:%SZ")
+        tempdiffOut = Real_timeOut - Sched_timeOut
+        Outbound_delay = tempdiffOut.seconds / 60
+    else:
+        Outbound_delay = randint(2,11) 
 
     #Store in outbound_delay
-    tempdiffOut = Real_timeOut - Sched_timeOut
-    Outbound_delay = tempdiffOut.seconds / 60
-
 
 
     ########## EXport Stage... needs wiritng########
@@ -134,15 +133,15 @@ while (1):
 
     print (OutputData)
     
-    c = pycurl.Curl()
-    storage =  BytesIO()
-    c = pycurl.Curl()
-    c.setopt(c.URL, OutputData)
-    c.setopt(c.WRITEFUNCTION, storage.write)
-    c.perform()
-    c.close()
+    #c = pycurl.Curl()
+    #storage =  BytesIO()
+    #c = pycurl.Curl()
+    #c.setopt(c.URL, OutputData)
+    #c.setopt(c.WRITEFUNCTION, storage.write)
+    #c.perform()
+    #c.close()
 
-    print ('postedddddd')
+    #print ('postedddddd')
 
     ###Only post every 10 seconds####
     sleep(WaitInterval)
