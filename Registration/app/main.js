@@ -38,7 +38,7 @@ pay.addEventListener('click', () => {
     account_balance.textContent = `$${balance_display}`;
 
     receipt.innerHTML = `
-      <h1>Payment Successful</h1>
+      <h2>Payment Successful</h2>
       <p>Amount: $${paid_display}</p>
       <p>New Balance: $${balance_display}</p>
       <p>Card: ${json.body.sourceOfFunds.provided.card.number}</p>

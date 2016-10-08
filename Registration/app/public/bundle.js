@@ -40,7 +40,7 @@ pay.addEventListener('click', function () {
     var balance_display = Number(balance).toFixed(2);
     account_balance.textContent = '$' + balance_display;
 
-    receipt.innerHTML = '\n      <h1>Payment Successful</h1>\n      <p>Amount: $' + paid_display + '</p>\n      <p>New Balance: $' + balance_display + '</p>\n      <p>Card: ' + json.body.sourceOfFunds.provided.card.number + '</p>\n      <p>' + json.body.sourceOfFunds.provided.card.scheme + ' issued by ' + json.body.sourceOfFunds.provided.card.issuer + '</p>\n      <p>Reference Number: ' + json.body.order.id + '</p>\n    ';
+    receipt.innerHTML = '\n      <h2>Payment Successful</h2>\n      <p>Amount: $' + paid_display + '</p>\n      <p>New Balance: $' + balance_display + '</p>\n      <p>Card: ' + json.body.sourceOfFunds.provided.card.number + '</p>\n      <p>' + json.body.sourceOfFunds.provided.card.scheme + ' issued by ' + json.body.sourceOfFunds.provided.card.issuer + '</p>\n      <p>Reference Number: ' + json.body.order.id + '</p>\n    ';
   });
 });
 
