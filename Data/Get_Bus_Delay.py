@@ -36,6 +36,8 @@ def getUrl(request):
 ## VARIABLES ######
 WaitInterval = 60 #Number of seconds between trying to post result
 
+
+cpcURL = 'http://10.18.0.132:2999/api/current_priority_congestion='
 mode = '2'  # 2 = bus
 
 #A = outbound
@@ -129,9 +131,21 @@ while (1):
     #print ('Id =')
     #print (Inbound_delay)
 
-    OutputData = postURL+format(Inbound_delay)
 
-    print (OutputData)
+
+    c = pycurl.Curl()
+    storage =  BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, cpcURL)
+    c.setopt(pycurl.HTTPHEADER, ['content-type: application/x-www/form-urlencoded'])
+    c.setopt(pycurl.POST, 1)
+    c.setopt(pycurl.POSTFIELDS, 'congestion='+str(Inbound_delay))
+    c.setopt(c.WRITEFUNCTION, storage.write)
+    c.perform()
+    c.close()
+
+
+    print (Inbound_delay)
     
     #c = pycurl.Curl()
     #storage =  BytesIO()
