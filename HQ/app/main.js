@@ -66,7 +66,7 @@ let draw_freeway = () => {
 
     let inbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Inbound)</p>`;
     if (delay > 3) {
-      inbound_text += `<p>Congested</p>`;
+      inbound_text += `<p>Congested: delayed by ${delay} minutes.</p>`;
     } else {
       inbound_text += `<p>Low Utilisation</p>`;
     }
