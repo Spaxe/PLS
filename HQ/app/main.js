@@ -22,70 +22,91 @@ var mode = 'non-priority';
 // Draw eastern freeway inbound / outbound
 let draw_freeway = () => {
 
-  // Remove it from map for a moment
-  freeway_layer.clearLayers();
+  xhr.get({
+    url: 'http://10.18.0.132:2999/api/current_priority_congestion',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    timeout: 1900
+  }, (error, resp, data) => {
+    if (error) {
+      console.error(error);
+    } else if (JSON.parse(data).result !== 'success') {
+      console.error('Failed to fetch priority congestion: ', data, error);
+    }
 
-  // Invert lat lng for leaflet
-  let inbound_coords = eastern_freeway.inbound.map(([x, y]) => {
-    return [y, x];
+    // FIXME, as we need data
+    var delay = 0;
+    try {
+      delay = Number(data.response.json[0].priority_congestion);
+    } catch (e) {
+      console.error(e);
+    }
+    if (!delay) delay = 0;
+
+    // Remove it from map for a moment
+    freeway_layer.clearLayers();
+
+    // Invert lat lng for leaflet
+    let inbound_coords = eastern_freeway.inbound.map(([x, y]) => {
+      return [y, x];
+    });
+    let outbound_coords = eastern_freeway.outbound.map(([x, y]) => {
+      return [y, x];
+    });
+
+    // Draw the eastern freeway line in colour
+    let inbound_polyline = L.polyline(inbound_coords, {
+      className: 'road-segment',
+      color: speed_colors[0],
+      weight: 5,
+      interactive: true
+    });
+    freeway_layer.addLayer(inbound_polyline);
+
+    let inbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Inbound)</p>`;
+    if (delay > 3) {
+      inbound_text += `<p>Congested</p>`;
+    } else {
+      inbound_text += `<p>Low Utilisation</p>`;
+    }
+
+    // Add tooltip for traffic details
+    let inbound_popup = L.popup()
+      .setContent(inbound_text);
+
+    inbound_polyline.addEventListener('mousemove', event => {
+      inbound_popup.setLatLng(event.latlng);
+      map.openPopup(inbound_popup);
+    });
+
+    // Draw the eastern freeway line in colour
+    let outbound_polyline = L.polyline(outbound_coords, {
+      className: 'road-segment',
+      color: speed_colors[delay > 3 ? 2 : 0],
+      weight: 5,
+      interactive: true
+    });
+    freeway_layer.addLayer(outbound_polyline);
+
+    let outbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Outbound)</p>`;
+    if (delay > 3) {
+      outbound_text += `<p>Congested</p>`;
+    } else {
+      outbound_text += `<p>Low Utilisation</p>`;
+    }
+
+    // Add tooltip for traffic details
+    let outbound_popup = L.popup().setContent(outbound_text);
+
+    outbound_polyline.addEventListener('mousemove', event => {
+      outbound_popup.setLatLng(event.latlng);
+      map.openPopup(outbound_popup);
+    });
   });
-  let outbound_coords = eastern_freeway.outbound.map(([x, y]) => {
-    return [y, x];
-  });
 
-  // Draw the eastern freeway line in colour
-  let inbound_polyline = L.polyline(inbound_coords, {
-    className: 'road-segment',
-    color: speed_colors[0],
-    weight: 5,
-    interactive: true
-  });
-  freeway_layer.addLayer(inbound_polyline);
-
-  // XXX FIXME TEMPORARY, as we need data
-  let delay = 0;
-
-  let inbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Inbound)</p>`;
-  if (delay > 0) {
-    inbound_text += `<p>Congested</p>`;
-  } else {
-    inbound_text += `<p>Low Utilisation</p>`;
-  }
-
-  // Add tooltip for traffic details
-  let inbound_popup = L.popup()
-    .setContent(inbound_text);
-
-  inbound_polyline.addEventListener('mousemove', event => {
-    inbound_popup.setLatLng(event.latlng);
-    map.openPopup(inbound_popup);
-  });
-
-  // Draw the eastern freeway line in colour
-  let outbound_polyline = L.polyline(outbound_coords, {
-    className: 'road-segment',
-    color: speed_colors[0],
-    weight: 5,
-    interactive: true
-  });
-  freeway_layer.addLayer(outbound_polyline);
-
-  let outbound_text = `<p class="road-name">Eastern Freeway Priority Lane (Outbound)</p>`;
-  if (delay > 0) {
-    outbound_text += `<p>Congested</p>`;
-  } else {
-    outbound_text += `<p>Low Utilisation</p>`;
-  }
-
-  // Add tooltip for traffic details
-  let outbound_popup = L.popup().setContent(outbound_text);
-
-  outbound_polyline.addEventListener('mousemove', event => {
-    outbound_popup.setLatLng(event.latlng);
-    map.openPopup(outbound_popup);
-  });
 };
-window.setInterval(draw_freeway, 60000);
+window.setInterval(draw_freeway, 2000);
 draw_freeway();
 
 let draw_real_time = () => {
@@ -150,7 +171,7 @@ let draw_real_time = () => {
 };
 window.setInterval(() => {
   draw_real_time();
-}, 60000);
+}, 2000);
 draw_real_time();
 road_layer.addTo(map);
 
